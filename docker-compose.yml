@@ -1,0 +1,32 @@
+version: "2.1"
+services:
+  mariadb:
+    image: ghcr.io/linuxserver/mariadb
+    container_name: piwigodb
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=piwigo
+      - MYSQL_USER=piwigo
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - /piwigostorage/mariadbconfig:/config
+      - /etc/localtime:/etc/localtime
+    ports:
+      - 3301:3306
+    restart: unless-stopped
+  piwigo:
+    image: ghcr.io/linuxserver/piwigo
+    container_name: piwigo
+    network_mode: host
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /piwigostorage/piwigoconfig:/config
+      - /piwigostorage/gallery:/gallery
+    ports:
+      - 85:80
+    restart: unless-stopped
