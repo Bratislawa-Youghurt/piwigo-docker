@@ -1,0 +1,47 @@
+version: "2.1"
+services:
+  mariadb:
+    image: ghcr.io/linuxserver/mariadb
+    container_name: piwigodb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=piwigo
+      - MYSQL_USER=piwigo
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - WEBSITES_ENABLE_APP_SERVICE_STORAGE=TRUE
+    volumes:
+      - mariadbstorage:/config
+    ports:
+      - 3306:3306
+    restart: unless-stopped
+  piwigo:
+    image: ghcr.io/linuxserver/piwigo
+    container_name: piwigo
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - WEBSITES_ENABLE_APP_SERVICE_STORAGE=TRUE
+    volumes:
+      - piwigostorage:/gallery
+      - piwigoconfig:/config
+    ports:
+      - 85:80
+    restart: unless-stopped
+volumes:
+  piwigostorage:
+    driver: azure_file
+    driver_opts:
+      share_name: piwigo
+      storage_account_name: piwigostorage
+  piwigoconfig:
+    driver: azure_file
+    driver_opts:
+      share_name: piwigoconfig
+      storage_account_name: piwigostorage
+  mariadbstorage:
+    driver: azure_file
+    driver_opts:
+      share_name: mariadb
+      storage_account_name: piwigostorage
